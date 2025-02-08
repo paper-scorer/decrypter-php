@@ -6,10 +6,15 @@
             "PaperScorer\\DecrypterPhp\\": "src/"
         }
     },
+    "license": "MIT",
     "authors": [
         {
-            "name": "PaperScorer"
+            "name": "PaperScorer",
+            "email": "hi@paperscorer.com",
+            "homepage": "https://www.paperscorer.com"
         }
     ],
-    "require": {}
+    "require": {
+        "php": ">=7.4"
+    }
 }
