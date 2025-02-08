@@ -1,0 +1,15 @@
+{
+    "name": "paper-scorer/decrypter-php",
+    "description": "PHP package to decrypt PaperScorer callback payloads.",
+    "autoload": {
+        "psr-4": {
+            "PaperScorer\\DecrypterPhp\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "PaperScorer"
+        }
+    ],
+    "require": {}
+}
