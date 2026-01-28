@@ -1,41 +1,51 @@
 <?php
+
+declare(strict_types=1);
+
 /**
  * PaperScorer Decrypter - PHP Version
  *
- * @category Class
- * @package  PaperScorer
- * @author   PaperScorer Team
+ * @package PaperScorer
+ * @author  PaperScorer Team
  */
 
 namespace PaperScorer\DecrypterPhp;
 
+use InvalidArgumentException;
+use RuntimeException;
+
 /**
- * Decrypter Class Doc Comment
+ * Decrypts encrypted payloads returned from the PaperScorer engine.
  *
- * @category Class
- * @package  PaperScorer
- * @author   PaperScorer Team
+ * The encrypted content is a base64-encoded string composed of three
+ * concatenated segments:
+ *   - Bytes  0–24:  IV (base64-encoded, decodes to 16 bytes)
+ *   - Bytes 24–52:  Salt (base64-encoded)
+ *   - Bytes 52+:    Ciphertext (base64-encoded)
+ *
+ * Key derivation: SHA-256(decryptKey + decodedSalt), truncated to 16 bytes.
+ * Cipher: AES-128-CBC with OPENSSL_RAW_DATA.
+ *
+ * @package PaperScorer
+ * @author  PaperScorer Team
  */
-class Decrypter {
-    /**
-     * @var DecryptionKey
-     */
-    protected $decryptKey = null;
+class Decrypter
+{
+    /** @var string The decryption key provided by PaperScorer */
+    protected string $decryptKey;
+
+    /** @var string|null The encrypted payload to decrypt */
+    protected ?string $encryptedContent = null;
 
     /**
-     * @var EncryptedContent
-     */
-    protected $encryptedContent = null;
-
-    /**
-     * @param DecryptionKey $decryptKey
+     * @param string $decryptKey The decryption key provided by PaperScorer
      *
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException If the decryption key is empty
      */
-    public function __construct(string $decryptKey = null)
+    public function __construct(string $decryptKey)
     {
-        if (!$decryptKey) {
-            throw new \InvalidArgumentException(
+        if ($decryptKey === '') {
+            throw new InvalidArgumentException(
                 'Missing the required parameter $decryptKey when creating a new Decrypter object.'
             );
         }
@@ -44,53 +54,70 @@ class Decrypter {
     }
 
     /**
-     * Decrypting and returning the set encrypted content.
+     * Decrypt and return the encrypted content as a string.
      *
-     * @return string
+     * @return string The decrypted content (typically JSON)
+     *
+     * @throws RuntimeException If encrypted content has not been set
+     * @throws RuntimeException If decryption fails
      */
     public function decrypt(): string
     {
-        // Setting the iv value.
-        $ivParamsAsBase64 = substr($this->encryptedContent, 0, 24);
-        // Setting the salt value.
-        $saltAsBase64 = substr($this->encryptedContent, 24, 28);
-        // Getting the cipher text.
-        $cipherText = substr($this->encryptedContent, 52);
+        if ($this->encryptedContent === null) {
+            throw new RuntimeException(
+                'Encrypted content must be set before calling decrypt().'
+            );
+        }
 
-        // Setting the working key value.
-        $key = $this->decryptKey . base64_decode($saltAsBase64);
-        // Setting the encrypted key value.
-        $secretKey = hash('sha256', $key, true);
-        $secretKey = substr($secretKey, 0, 16);
+        // Extract the three base64-encoded segments from the payload
+        $ivBase64 = substr($this->encryptedContent, 0, 24);
+        $saltBase64 = substr($this->encryptedContent, 24, 28);
+        $cipherTextBase64 = substr($this->encryptedContent, 52);
 
-        // Creating the decrypted content.
+        // Derive a 16-byte AES key from the decrypt key and the decoded salt
+        $secretKey = substr(
+            hash('sha256', $this->decryptKey . base64_decode($saltBase64), true),
+            0,
+            16
+        );
+
         $decryptedContent = openssl_decrypt(
-            base64_decode($cipherText),
+            base64_decode($cipherTextBase64),
             'AES-128-CBC',
             $secretKey,
             OPENSSL_RAW_DATA,
-            base64_decode($ivParamsAsBase64)
+            base64_decode($ivBase64)
         );
+
+        if ($decryptedContent === false) {
+            throw new RuntimeException(
+                'Decryption failed. Verify that the decrypt key and encrypted content are correct.'
+            );
+        }
 
         return $decryptedContent;
     }
 
     /**
-     * Setting the decryption key
+     * Set the decryption key.
      *
-     * @param  string $decryptKey (required)
+     * @param string $decryptKey The decryption key provided by PaperScorer
+     *
+     * @return void
      */
-    public function setDecryptKey(string $decryptKey)
+    public function setDecryptKey(string $decryptKey): void
     {
         $this->decryptKey = $decryptKey;
     }
 
     /**
-     * Setting the encrypted content
+     * Set the encrypted content to decrypt.
      *
-     * @param  string $encryptedContent (required)
+     * @param string $encryptedContent The encrypted payload from PaperScorer
+     *
+     * @return void
      */
-    public function setEncryptedContent(string $encryptedContent)
+    public function setEncryptedContent(string $encryptedContent): void
     {
         $this->encryptedContent = $encryptedContent;
     }

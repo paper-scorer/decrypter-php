@@ -1,3 +1,17 @@
+## 1.1.0 (2026-01-28)
+
+* Added `declare(strict_types=1)` for runtime type enforcement.
+* Added PHP 7.4 typed properties to `Decrypter` class.
+* Added `RuntimeException` when calling `decrypt()` before setting encrypted content.
+* Added `RuntimeException` when `openssl_decrypt` fails (e.g. wrong key or corrupt payload).
+* Added explicit `void` return types on `setDecryptKey()` and `setEncryptedContent()`.
+* Fixed constructor parameter from nullable default (`string $decryptKey = null`) to required (`string $decryptKey`).
+* Fixed empty-key check from truthy (`!$decryptKey`) to explicit (`$decryptKey === ''`).
+* Fixed PHPDoc `@var` and `@param` types from non-existent types to correct scalar types.
+* Fixed class opening brace placement to follow PSR-12.
+* Replaced placeholder class docblock with protocol documentation.
+* Added PHPUnit 9.6 test suite with 10 unit tests covering constructor validation, decryption with a known test vector, error handling, setters, and round-trip encrypt/decrypt.
+
 ## 1.0.0 (2025-02-01)
 
 * The initial release of the PHP decrypter.
