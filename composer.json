@@ -1,6 +1,8 @@
 {
     "name": "paper-scorer/decrypter-php",
     "description": "PHP package to decrypt PaperScorer callback payloads.",
+    "type": "library",
+    "keywords": ["paperscorer", "decryption", "aes", "encryption", "callback"],
     "autoload": {
         "psr-4": {
             "PaperScorer\\DecrypterPhp\\": "src/"
@@ -15,7 +17,8 @@
         }
     ],
     "require": {
-        "php": ">=7.4"
+        "php": ">=7.4",
+        "ext-openssl": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.6"

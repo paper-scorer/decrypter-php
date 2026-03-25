@@ -103,11 +103,13 @@ class Decrypter
      *
      * @param string $decryptKey The decryption key provided by PaperScorer
      *
-     * @return void
+     * @return self
      */
-    public function setDecryptKey(string $decryptKey): void
+    public function setDecryptKey(string $decryptKey): self
     {
         $this->decryptKey = $decryptKey;
+
+        return $this;
     }
 
     /**
@@ -115,10 +117,12 @@ class Decrypter
      *
      * @param string $encryptedContent The encrypted payload from PaperScorer
      *
-     * @return void
+     * @return self
      */
-    public function setEncryptedContent(string $encryptedContent): void
+    public function setEncryptedContent(string $encryptedContent): self
     {
         $this->encryptedContent = $encryptedContent;
+
+        return $this;
     }
 }

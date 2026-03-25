@@ -4,11 +4,12 @@ PaperScorer Decrypter
 
 This PHP package is used to decrypt the response returned from the PaperScorer engine.
 
-- Package version: 1.0.0
+- Package version: 1.1.0
 
 ## Requirements
 
-PHP 7.4.0 and later
+- PHP 7.4.0 and later
+- `openssl` PHP extension
 
 ## Installation & Usage
 ### Composer
@@ -22,19 +23,15 @@ This package can be easily installed using the following composer command:
 Include and run the following code in your project:
 
 ```php
-// This is the main include for the project.
-use PaperScorer/DecrypterPhp/Decrypter;
+use PaperScorer\DecrypterPhp\Decrypter;
 
-// Creating a new decrypter object and setting the key.
-// NOTE: The key is provided by PaperScorer.
+// Create a decrypter with the key provided by PaperScorer.
 $decrypter = new Decrypter($decryptKey);
 
-// Setting the encrypted content sent from the PaperScorer engine.
-$decrypter->setEncryptedContent($encryptedContent);
-
-// Running the decrypter and getting the decrypted response.
-// NOTE: The decrypted response will be a JSON string.
-$decryptedResponse = $decrypter->decrypt();
+// Decrypt the encrypted callback payload (returns a JSON string).
+$decryptedResponse = $decrypter
+    ->setEncryptedContent($encryptedContent)
+    ->decrypt();
 ```
 
 ## Contributing
@@ -45,5 +42,5 @@ We are always looking for updates to the package that will help the community. I
 
 1. Update the CHANGELOG file
 1. `git tag -a vX.X.X`
-1. `git push --tags origin HEAD:master`
+1. `git push --tags origin HEAD:main`
 1. Log into [Packagist](https://packagist.org/packages/paper-scorer/decrypter-php) and click "Update"
